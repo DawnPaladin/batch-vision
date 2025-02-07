@@ -10,7 +10,7 @@ async function imageToBase64(filePath: string): Promise<string> {
 	return `data:image/jpeg;base64,${encodeBase64(imageData)}`;
 }
 
-async function analyzeImage(filePath: string): Promise<string> {
+async function analyzeImage(filePath: string): Promise<{date: string, total: string}> {
 	try {
 		const base64Image = await imageToBase64(filePath);
 
@@ -22,7 +22,7 @@ async function analyzeImage(filePath: string): Promise<string> {
 					content: [
 						{
 							type: "text",
-							text: "What text do you see in this image?",
+							text: "Please analyze this receipt and return ONLY a JSON object with two fields: 'date' (the receipt date) and 'total' (the total amount). For the total, include only the numerical amount with currency symbol.",
 						},
 						{
 							type: "image_url",
@@ -34,9 +34,10 @@ async function analyzeImage(filePath: string): Promise<string> {
 				},
 			],
 			max_tokens: 300,
+			response_format: { type: "json_object" },
 		});
 
-		return response.choices[0]?.message?.content || "No text found";
+		return JSON.parse(response.choices[0]?.message?.content || '{"date": "", "total": ""}');
 	} catch (error) {
 		console.error("Error analyzing image:", error);
 		throw error;
@@ -46,5 +47,5 @@ async function analyzeImage(filePath: string): Promise<string> {
 // Example usage
 async function test() {
 	const result = await analyzeImage("./path/to/your/image.jpg");
-	console.log("Found text:", result);
+	console.log("Receipt details:", result);
 }
