@@ -13,7 +13,11 @@ export default function Home() {
 				class="w-full p-2 border rounded-lg mb-4 min-h-[100px]"
 				value={prompt}
 			/>
-
+			<div class="flex justify-center mb-4">
+				<button class="w-1/4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors">
+					Process files
+				</button>
+			</div>
 			<FileDropZone />
 		</main>
 	);
