@@ -9,6 +9,7 @@ import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $FileDropZone from "./islands/FileDropZone.tsx";
+import * as $ReceiptTable from "./islands/ReceiptTable.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -22,6 +23,7 @@ const manifest = {
 	islands: {
 		"./islands/Counter.tsx": $Counter,
 		"./islands/FileDropZone.tsx": $FileDropZone,
+		"./islands/ReceiptTable.tsx": $ReceiptTable,
 	},
 	baseUrl: import.meta.url,
 } satisfies Manifest;

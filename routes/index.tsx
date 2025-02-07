@@ -14,12 +14,7 @@ export default function Home() {
 				value={prompt}
 			/>
 
-			<FileDropZone
-				onFilesDropped={(files) => {
-					console.log("Files dropped:", files);
-					// Handle the dropped files here
-				}}
-			/>
+			<FileDropZone />
 		</main>
 	);
 }
