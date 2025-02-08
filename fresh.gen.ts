@@ -11,6 +11,7 @@ import * as $index from "./routes/index.tsx";
 import * as $Controls from "./islands/Controls.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $FileDropZone from "./islands/FileDropZone.tsx";
+import * as $FileProcessor from "./islands/FileProcessor.tsx";
 import * as $PromptEditor from "./islands/PromptEditor.tsx";
 import * as $ReceiptTable from "./islands/ReceiptTable.tsx";
 import type { Manifest } from "$fresh/server.ts";
@@ -28,6 +29,7 @@ const manifest = {
 		"./islands/Controls.tsx": $Controls,
 		"./islands/Counter.tsx": $Counter,
 		"./islands/FileDropZone.tsx": $FileDropZone,
+		"./islands/FileProcessor.tsx": $FileProcessor,
 		"./islands/PromptEditor.tsx": $PromptEditor,
 		"./islands/ReceiptTable.tsx": $ReceiptTable,
 	},

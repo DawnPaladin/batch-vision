@@ -2,6 +2,7 @@ import { useSignal } from "@preact/signals";
 import FileDropZone from "../islands/FileDropZone.tsx";
 import PromptEditor from "../islands/PromptEditor.tsx";
 import Controls from "../islands/Controls.tsx";
+import FileProcessor from "../islands/FileProcessor.tsx";
 
 interface ProcessedResult {
 	filename: string;
@@ -16,36 +17,6 @@ export default function Home() {
 	);
 	const results = useSignal<ProcessedResult[]>([]);
 	const isProcessing = useSignal(false);
-
-	const processFiles = async (files: File[]) => {
-		isProcessing.value = true;
-		
-		try {
-			for (const file of files) {
-				const formData = new FormData();
-				formData.append('file', file);
-				formData.append('prompt', prompt.value);
-
-				const response = await fetch('/api/process-image', {
-					method: 'POST',
-					body: formData,
-				});
-
-				const result = await response.json();
-				
-				results.value = [...results.value, {
-					filename: file.name,
-					date: result.date,
-					amount: result.amount,
-					error: result.error,
-				}];
-			}
-		} catch (error) {
-			console.error('Error processing files:', error);
-		} finally {
-			isProcessing.value = false;
-		}
-	};
 
 	const clearResults = () => {
 		results.value = [];
@@ -73,11 +44,15 @@ export default function Home() {
 			<Controls 
 				isProcessing={isProcessing}
 				hasResults={useSignal(results.value.length > 0)}
-				onProcess={processFiles}
+				onProcess={() => {}}
 				onClear={clearResults}
 				onDownload={downloadResults}
 			/>
-			<FileDropZone onFiles={processFiles} />
+			<FileProcessor 
+				prompt={prompt}
+				results={results}
+				isProcessing={isProcessing}
+			/>
 			
 			{results.value.length > 0 && (
 				<div class="mt-4">
