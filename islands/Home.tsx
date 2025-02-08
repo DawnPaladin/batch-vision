@@ -1,8 +1,8 @@
 import { useSignal } from "@preact/signals";
 import PromptEditor from "./PromptEditor.tsx";
-import Controls, { FileStatus } from "./Controls.tsx";
+import Controls from "./Controls.tsx";
 import { useState } from "preact/hooks";
-import FileTable from "./FileTable.tsx";
+import FileTable, { FileStatus } from "./FileTable.tsx";
 
 interface ProcessedResult {
 	filename: string;
@@ -59,7 +59,7 @@ export default function Home() {
 				files={files}
 				onFilesDrop={(newFiles) => setFiles(prev => [...prev, ...newFiles.map(file => ({
 					file,
-					status: 'pending' as const
+					status: 'ready' as const
 				}))])}
 			/>
 		</main>

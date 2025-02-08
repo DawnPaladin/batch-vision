@@ -1,9 +1,10 @@
 import { Signal } from "@preact/signals";
 import FileDropZone from "./FileDropZone.tsx";
+import Spinner from "../components/spinner.tsx";
 
-interface FileStatus {
+export interface FileStatus {
     file: File;
-    status: 'pending' | 'processing' | 'done' | 'error';
+    status: 'ready' | 'processing' | 'done' | 'error';
     result?: { date: string; amount: number };
     error?: string;
 }
@@ -11,6 +12,16 @@ interface FileStatus {
 interface FileTableProps {
     files: FileStatus[];
     onFilesDrop: (files: File[]) => void;
+}
+
+function displayStatus(fileStatus: FileStatus) {
+	switch (fileStatus.status) {
+		case 'ready': return 'Ready';
+		case 'processing': return <Spinner/>;
+		case 'done': return 'Done';
+		case 'error': return <span class="text-red-600">Error</span>
+		default: break;
+	}
 }
 
 export default function FileTable({ files, onFilesDrop }: FileTableProps) {
@@ -25,14 +36,14 @@ export default function FileTable({ files, onFilesDrop }: FileTableProps) {
                             <th class="p-2 text-left">File Name</th>
                             <th class="p-2 text-left">Status</th>
                             <th class="p-2 text-left">Date</th>
-                            <th class="p-2 text-left">Amountta</th>
+                            <th class="p-2 text-left">Amount</th>
                         </tr>
                     </thead>
                     <tbody>
                         {files.map((fileStatus, index) => (
                             <tr key={index} class="border-t">
                                 <td class="p-2">{fileStatus.file.name}</td>
-                                <td class="p-2">{fileStatus.status}</td>
+                                <td class="p-2">{displayStatus(fileStatus)}</td>
                                 <td class="p-2">
                                     {fileStatus.result?.date || (
                                         fileStatus.error && <span class="text-red-500">{fileStatus.error}</span>

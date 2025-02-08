@@ -1,5 +1,6 @@
 import { Signal } from "@preact/signals";
 import { useState } from "preact/hooks";
+import { FileStatus } from './FileTable.tsx';
 
 interface ControlsProps {
 	isProcessing: Signal<boolean>;
@@ -9,13 +10,6 @@ interface ControlsProps {
 	results: Signal<ProcessedResult[]>;
 	onClear: () => void;
 	onDownload: () => void;
-}
-
-export interface FileStatus {
-	file: File;
-	status: 'pending' | 'processing' | 'done' | 'error';
-	result?: { date: string; amount: number };
-	error?: string;
 }
 
 interface ProcessedResult {
