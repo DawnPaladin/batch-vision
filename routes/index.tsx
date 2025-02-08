@@ -15,7 +15,10 @@ interface ProcessedResult {
 
 export default function Home() {
 	const prompt = useSignal(
-		"Please extract the date and the total amount from this image of a receipt. Totals should include tips where present. Respond only with a JSON object matching this schema: { total_amount, date } Do not respond with markdown."
+		"Please extract the date and the total amount from this image of a receipt. " +
+		"Totals should include tips where present. If you cannot find a total amount, respond with an error message. " +
+		"Respond only with a JSON object matching this schema: { total_amount: string, date: string }. " +
+		"The total_amount should never be null. Do not include markdown formatting in your response."
 	);
 	const results = useSignal<ProcessedResult[]>([]);
 	const isProcessing = useSignal(false);
@@ -63,29 +66,6 @@ export default function Home() {
 				results={results}
 				isProcessing={isProcessing}
 			/>
-			
-			{results.value.length > 0 && (
-				<div class="mt-4">
-					<table class="w-full border-collapse border">
-						<thead>
-							<tr class="bg-gray-100">
-								<th class="border p-2">Filename</th>
-								<th class="border p-2">Date</th>
-								<th class="border p-2">Amount</th>
-							</tr>
-						</thead>
-						<tbody>
-							{results.value.map((result) => (
-								<tr key={result.filename} class={result.error ? "bg-red-50" : ""}>
-									<td class="border p-2">{result.filename}</td>
-									<td class="border p-2">{result.error ?? result.date}</td>
-									<td class="border p-2">{result.error ?? result.amount}</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-			)}
 		</main>
 	);
 }

@@ -62,26 +62,41 @@ export async function handler(req: Request) {
 		// Parse JSON response
 		let processedResult;
 		try {
-			const parsedJson = JSON.parse(result);
+			// Clean up markdown code blocks if present
+			const cleanResult = result.replace(/```json\s*|\s*```/g, '');
+			const parsedJson = JSON.parse(cleanResult);
 			
 			// Handle both amount or total_amount fields
 			const amount = parsedJson.amount || parsedJson.total_amount;
 			
 			// Validate the expected structure
-			if (!parsedJson.date || !amount || isNaN(parseFloat(amount))) {
-				console.error('Invalid response structure:', parsedJson);
-				throw new Error("Invalid response format");
+			if (!parsedJson.date) {
+				throw new Error("Missing date in response");
+			}
+			
+			// Handle null/missing amount more gracefully
+			if (!amount) {
+				throw new Error("No amount found in receipt");
+			}
+			
+			// Clean up amount string and convert to number
+			const cleanAmount = amount.toString().replace(/[^0-9.-]/g, '');
+			const numericAmount = parseFloat(cleanAmount);
+			if (isNaN(numericAmount)) {
+				throw new Error("Invalid amount format");
 			}
 			
 			// Transform to our expected format
 			processedResult = {
 				date: parsedJson.date,
-				amount: parseFloat(amount)
+				amount: numericAmount
 			};
 			
-		} catch (error) {
-			console.error('Failed to parse JSON response:', result);
-			throw new Error("Invalid JSON response format");
+		} catch (error: unknown) {
+			const errorMessage = error instanceof Error ? error.message : "Unknown error";
+			console.error('Failed to parse response:', errorMessage);
+			console.error('Raw response:', result);
+			throw new Error(errorMessage);
 		}
 
 		console.log('Processed result:', processedResult);
