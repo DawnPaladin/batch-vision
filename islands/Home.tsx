@@ -48,7 +48,6 @@ export default function Home() {
 			<PromptEditor prompt={prompt} />
 			<Controls 
 				isProcessing={isProcessing}
-				hasResults={useSignal(results.value.length > 0)}
 				prompt={prompt}
 				files={files}
 				setFiles={setFiles}

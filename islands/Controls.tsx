@@ -3,7 +3,6 @@ import { useState } from "preact/hooks";
 
 interface ControlsProps {
 	isProcessing: Signal<boolean>;
-	hasResults: Signal<boolean>;
 	prompt: Signal<string>;
 	files: FileStatus[];
 	setFiles: (updater: (prev: FileStatus[]) => FileStatus[]) => void;
@@ -28,7 +27,6 @@ interface ProcessedResult {
 
 export default function Controls({ 
 	isProcessing, 
-	hasResults, 
 	prompt,
 	files,
 	setFiles,
@@ -107,9 +105,9 @@ export default function Controls({
 				Clear
 			</button>
 			<button
-				class="w-1/4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+				class="w-1/4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:bg-gray-400 transition-colors"
 				onClick={onDownload}
-				disabled={!hasResults.value}
+				disabled={results.value.length == 0}
 			>
 				Download results
 			</button>
