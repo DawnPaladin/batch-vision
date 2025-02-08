@@ -8,7 +8,6 @@ import * as $api_process_image from "./routes/api/process-image.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
 import * as $Controls from "./islands/Controls.tsx";
-import * as $Counter from "./islands/Counter.tsx";
 import * as $FileDropZone from "./islands/FileDropZone.tsx";
 import * as $FileTable from "./islands/FileTable.tsx";
 import * as $Home from "./islands/Home.tsx";
@@ -26,7 +25,6 @@ const manifest = {
 	},
 	islands: {
 		"./islands/Controls.tsx": $Controls,
-		"./islands/Counter.tsx": $Counter,
 		"./islands/FileDropZone.tsx": $FileDropZone,
 		"./islands/FileTable.tsx": $FileTable,
 		"./islands/Home.tsx": $Home,
