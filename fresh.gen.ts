@@ -12,7 +12,6 @@ import * as $FileDropZone from "./islands/FileDropZone.tsx";
 import * as $FileTable from "./islands/FileTable.tsx";
 import * as $Home from "./islands/Home.tsx";
 import * as $PromptEditor from "./islands/PromptEditor.tsx";
-import * as $ReceiptTable from "./islands/ReceiptTable.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
 const manifest = {
@@ -29,7 +28,6 @@ const manifest = {
 		"./islands/FileTable.tsx": $FileTable,
 		"./islands/Home.tsx": $Home,
 		"./islands/PromptEditor.tsx": $PromptEditor,
-		"./islands/ReceiptTable.tsx": $ReceiptTable,
 	},
 	baseUrl: import.meta.url,
 } satisfies Manifest;

@@ -1,5 +1,4 @@
 import { useCallback, useState } from "preact/hooks";
-import ReceiptTable from "./ReceiptTable.tsx";
 
 interface FileRecord {
 	filename: string;
@@ -45,8 +44,6 @@ export default function FileDropZone({ onFilesDrop }: FileDropZoneProps) {
 			>
 				<p>Drag and drop files here</p>
 			</div>
-
-			{files.length > 0 && <ReceiptTable files={files} />}
 		</div>
 	);
 }

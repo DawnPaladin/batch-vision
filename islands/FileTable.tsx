@@ -25,7 +25,7 @@ export default function FileTable({ files, onFilesDrop }: FileTableProps) {
                             <th class="p-2 text-left">File Name</th>
                             <th class="p-2 text-left">Status</th>
                             <th class="p-2 text-left">Date</th>
-                            <th class="p-2 text-left">Amount</th>
+                            <th class="p-2 text-left">Amountta</th>
                         </tr>
                     </thead>
                     <tbody>
