@@ -8,8 +8,10 @@ import * as $api_joke from "./routes/api/joke.ts";
 import * as $api_process_image from "./routes/api/process-image.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
+import * as $Controls from "./islands/Controls.tsx";
 import * as $Counter from "./islands/Counter.tsx";
 import * as $FileDropZone from "./islands/FileDropZone.tsx";
+import * as $PromptEditor from "./islands/PromptEditor.tsx";
 import * as $ReceiptTable from "./islands/ReceiptTable.tsx";
 import type { Manifest } from "$fresh/server.ts";
 
@@ -23,8 +25,10 @@ const manifest = {
 		"./routes/index.tsx": $index,
 	},
 	islands: {
+		"./islands/Controls.tsx": $Controls,
 		"./islands/Counter.tsx": $Counter,
 		"./islands/FileDropZone.tsx": $FileDropZone,
+		"./islands/PromptEditor.tsx": $PromptEditor,
 		"./islands/ReceiptTable.tsx": $ReceiptTable,
 	},
 	baseUrl: import.meta.url,

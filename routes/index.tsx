@@ -1,5 +1,7 @@
 import { useSignal } from "@preact/signals";
 import FileDropZone from "../islands/FileDropZone.tsx";
+import PromptEditor from "../islands/PromptEditor.tsx";
+import Controls from "../islands/Controls.tsx";
 
 interface ProcessedResult {
 	filename: string;
@@ -67,34 +69,14 @@ export default function Home() {
 	return (
 		<main class="p-4 mx-auto max-w-screen-md">
 			<h1 class="text-xl mb-4">Batch Vision</h1>
-			<div class="mb-2">Prompt:</div>
-			<textarea
-				class="w-full p-2 border rounded-lg mb-4 min-h-[100px]"
-				value={prompt.value}
-				onChange={(e) => prompt.value = e.currentTarget.value}
+			<PromptEditor prompt={prompt} />
+			<Controls 
+				isProcessing={isProcessing}
+				hasResults={useSignal(results.value.length > 0)}
+				onProcess={processFiles}
+				onClear={clearResults}
+				onDownload={downloadResults}
 			/>
-			<div class="flex justify-center mb-4 gap-2">
-				<button
-					class="flex-grow px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors disabled:bg-gray-400"
-					onClick={() => processFiles([])}
-					disabled={isProcessing.value}
-				>
-					{isProcessing.value ? 'Processing...' : 'Process files'}
-				</button>
-				<button
-					class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-					onClick={clearResults}
-				>
-					Clear
-				</button>
-				<button
-					class="w-1/4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-					onClick={downloadResults}
-					disabled={results.value.length === 0}
-				>
-					Download results
-				</button>
-			</div>
 			<FileDropZone onFiles={processFiles} />
 			
 			{results.value.length > 0 && (
