@@ -49,11 +49,37 @@ export async function handler(req: Request) {
 					],
 				},
 			],
+			"response_format": {
+				"type": "json_schema",
+				"json_schema": {
+					"name": "receipt_data",
+					"schema": {
+						"type": "object",
+						"properties": {
+							"date": {
+								"type": "string",
+								"description":
+									"The date of the receipt in mm/dd/yyyy format.",
+							},
+							"amount": {
+								"type": "number",
+								"description": "The amount, including tips, in monetary format.",
+							},
+						},
+						"required": [
+							"date",
+							"amount",
+						],
+						"additionalProperties": false,
+					},
+					"strict": true,
+				},
+			},
 			max_tokens: 100,
 		});
 
 		const result = response.choices[0]?.message?.content;
-		console.log('OpenAI response:', result);
+		console.log("OpenAI response:", result);
 
 		if (!result) {
 			throw new Error("No response from OpenAI");
@@ -63,44 +89,45 @@ export async function handler(req: Request) {
 		let processedResult;
 		try {
 			// Clean up markdown code blocks if present
-			const cleanResult = result.replace(/```json\s*|\s*```/g, '');
+			const cleanResult = result.replace(/```json\s*|\s*```/g, "");
 			const parsedJson = JSON.parse(cleanResult);
-			
+
 			// Handle both amount or total_amount fields
 			const amount = parsedJson.amount || parsedJson.total_amount;
-			
+
 			// Validate the expected structure
 			if (!parsedJson.date) {
 				throw new Error("Missing date in response");
 			}
-			
+
 			// Handle null/missing amount more gracefully
 			if (!amount) {
 				throw new Error("No amount found in receipt");
 			}
-			
+
 			// Clean up amount string and convert to number
-			const cleanAmount = amount.toString().replace(/[^0-9.-]/g, '');
+			const cleanAmount = amount.toString().replace(/[^0-9.-]/g, "");
 			const numericAmount = parseFloat(cleanAmount);
 			if (isNaN(numericAmount)) {
 				throw new Error("Invalid amount format");
 			}
-			
+
 			// Transform to our expected format
 			processedResult = {
 				date: parsedJson.date,
-				amount: numericAmount
+				amount: numericAmount,
 			};
-			
 		} catch (error: unknown) {
-			const errorMessage = error instanceof Error ? error.message : "Unknown error";
-			console.error('Failed to parse response:', errorMessage);
-			console.error('Raw response:', result);
+			const errorMessage = error instanceof Error
+				? error.message
+				: "Unknown error";
+			console.error("Failed to parse response:", errorMessage);
+			console.error("Raw response:", result);
 			throw new Error(errorMessage);
 		}
 
-		console.log('Processed result:', processedResult);
-		
+		console.log("Processed result:", processedResult);
+
 		return new Response(
 			JSON.stringify(processedResult),
 			{ headers: { "Content-Type": "application/json" } },
