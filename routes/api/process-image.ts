@@ -34,7 +34,7 @@ export async function handler(req: Request) {
 		});
 
 		const response = await openai.chat.completions.create({
-			model: "gpt-4-vision-preview",
+			model: "gpt-4o",
 			messages: [
 				{
 					role: "user",
@@ -53,15 +53,25 @@ export async function handler(req: Request) {
 		});
 
 		const result = response.choices[0]?.message?.content;
+		console.log('OpenAI response:', result);
+
 		if (!result) {
 			throw new Error("No response from OpenAI");
 		}
 
 		// Parse CSV response
 		const [date, amount] = result.split(",").map((s: string) => s.trim());
+		
+		if (!date || !amount || isNaN(parseFloat(amount))) {
+			console.error('Failed to parse response:', result);
+			throw new Error("Invalid response format");
+		}
 
+		const processedResult = { date, amount: parseFloat(amount) };
+		console.log('Processed result:', processedResult);
+		
 		return new Response(
-			JSON.stringify({ date, amount: parseFloat(amount) }),
+			JSON.stringify(processedResult),
 			{ headers: { "Content-Type": "application/json" } },
 		);
 	} catch (error) {

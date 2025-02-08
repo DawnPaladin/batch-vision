@@ -30,6 +30,7 @@ export default function FileProcessor({ prompt, results, isProcessing }: FilePro
 				});
 
 				const result = await response.json();
+				console.log('API response:', result);
 				
 				results.value = [...results.value, {
 					filename: file.name,
