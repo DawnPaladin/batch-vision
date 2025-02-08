@@ -13,7 +13,7 @@ interface ProcessedResult {
 
 export default function Home() {
 	const prompt = useSignal(
-		"Please extract the date and the total amount from this image of a receipt. Totals should include tips where present. Respond with only a CSV containing two columns: Date and Amount."
+		"Please extract the date and the total amount from this image of a receipt. Totals should include tips where present. Respond only with a JSON object matching this schema: { total_amount, date } Do not respond with markdown."
 	);
 	const results = useSignal<ProcessedResult[]>([]);
 	const isProcessing = useSignal(false);

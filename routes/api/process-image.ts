@@ -59,15 +59,31 @@ export async function handler(req: Request) {
 			throw new Error("No response from OpenAI");
 		}
 
-		// Parse CSV response
-		const [date, amount] = result.split(",").map((s: string) => s.trim());
-		
-		if (!date || !amount || isNaN(parseFloat(amount))) {
-			console.error('Failed to parse response:', result);
-			throw new Error("Invalid response format");
+		// Parse JSON response
+		let processedResult;
+		try {
+			const parsedJson = JSON.parse(result);
+			
+			// Handle both amount or total_amount fields
+			const amount = parsedJson.amount || parsedJson.total_amount;
+			
+			// Validate the expected structure
+			if (!parsedJson.date || !amount || isNaN(parseFloat(amount))) {
+				console.error('Invalid response structure:', parsedJson);
+				throw new Error("Invalid response format");
+			}
+			
+			// Transform to our expected format
+			processedResult = {
+				date: parsedJson.date,
+				amount: parseFloat(amount)
+			};
+			
+		} catch (error) {
+			console.error('Failed to parse JSON response:', result);
+			throw new Error("Invalid JSON response format");
 		}
 
-		const processedResult = { date, amount: parseFloat(amount) };
 		console.log('Processed result:', processedResult);
 		
 		return new Response(
