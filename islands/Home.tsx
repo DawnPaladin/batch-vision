@@ -24,6 +24,7 @@ export default function Home() {
 
 	const clearResults = () => {
 		results.value = [];
+		setFiles([]);
 	};
 
 	const downloadResults = () => {
