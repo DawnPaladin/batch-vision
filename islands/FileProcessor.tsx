@@ -1,6 +1,7 @@
 import { Signal } from "@preact/signals";
 import FileDropZone from "./FileDropZone.tsx";
-import { useState, useRef } from "preact/hooks";
+import { useState, useRef, useImperativeHandle } from "preact/hooks";
+import { forwardRef, ForwardedRef } from "preact/compat";
 
 interface ProcessedResult {
 	filename: string;
@@ -22,9 +23,57 @@ interface FileStatus {
 	error?: string;
 }
 
-export default function FileProcessor({ prompt, results, isProcessing }: FileProcessorProps) {
+export default forwardRef(function FileProcessor(
+	{ prompt, results, isProcessing }: FileProcessorProps,
+	ref: ForwardedRef<{ processFiles: () => Promise<void> }>
+) {
 	const [files, setFiles] = useState<FileStatus[]>([]);
 	const promptRef = useRef<HTMLTextAreaElement>(null);
+
+	// Expose processFiles to parent
+	useImperativeHandle(ref, () => ({
+		processFiles: async () => {
+			isProcessing.value = true;
+			
+			for (const fileStatus of files) {
+				if (fileStatus.status === 'completed') continue;
+
+				setFiles(prev => prev.map(f => 
+					f === fileStatus ? { ...f, status: 'processing' } : f
+				));
+
+				try {
+					const formData = new FormData();
+					formData.append('file', fileStatus.file);
+					formData.append('prompt', prompt.value);
+
+					const response = await fetch('/api/process-image', {
+						method: 'POST',
+						body: formData,
+					});
+
+					if (!response.ok) throw new Error('Processing failed');
+
+					const result = await response.json();
+					results.value = [...results.value, {
+						filename: fileStatus.file.name,
+						date: result.date,
+						amount: result.amount
+					}];
+					setFiles(prev => prev.map(f => 
+						f === fileStatus ? { ...f, status: 'completed', result } : f
+					));
+				} catch (error: unknown) {
+					const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+					setFiles(prev => prev.map(f => 
+						f === fileStatus ? { ...f, status: 'error', error: errorMessage } : f
+					));
+				}
+			}
+
+			isProcessing.value = false;
+		}
+	}));
 
 	const handleFilesDrop = (newFiles: File[]) => {
 		const newFileStatuses = newFiles.map(file => ({
@@ -32,48 +81,6 @@ export default function FileProcessor({ prompt, results, isProcessing }: FilePro
 			status: 'pending' as const
 		}));
 		setFiles(prev => [...prev, ...newFileStatuses]);
-	};
-
-	const processFiles = async () => {
-		isProcessing.value = true;
-		
-		for (const fileStatus of files) {
-			if (fileStatus.status === 'completed') continue;
-
-			setFiles(prev => prev.map(f => 
-				f === fileStatus ? { ...f, status: 'processing' } : f
-			));
-
-			try {
-				const formData = new FormData();
-				formData.append('file', fileStatus.file);
-				formData.append('prompt', prompt.value);
-
-				const response = await fetch('/api/process-image', {
-					method: 'POST',
-					body: formData,
-				});
-
-				if (!response.ok) throw new Error('Processing failed');
-
-				const result = await response.json();
-				results.value = [...results.value, {
-					filename: fileStatus.file.name,
-					date: result.date,
-					amount: result.amount
-				}];
-				setFiles(prev => prev.map(f => 
-					f === fileStatus ? { ...f, status: 'completed', result } : f
-				));
-			} catch (error: unknown) {
-				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				setFiles(prev => prev.map(f => 
-					f === fileStatus ? { ...f, status: 'error', error: errorMessage } : f
-				));
-			}
-		}
-
-		isProcessing.value = false;
 	};
 
 	const removeFile = (fileToRemove: FileStatus) => {
@@ -134,7 +141,10 @@ export default function FileProcessor({ prompt, results, isProcessing }: FilePro
 
 					<div class="mt-4">
 						<button
-							onClick={processFiles}
+							onClick={() => {
+								if (typeof ref === 'function') return;
+								ref?.current?.processFiles();
+							}}
 							disabled={isProcessing.value}
 							class={`px-4 py-2 rounded text-white ${
 								isProcessing.value 
@@ -149,4 +159,4 @@ export default function FileProcessor({ prompt, results, isProcessing }: FilePro
 			)}
 		</div>
 	);
-} 
+});

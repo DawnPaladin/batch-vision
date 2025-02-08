@@ -3,6 +3,8 @@ import FileDropZone from "../islands/FileDropZone.tsx";
 import PromptEditor from "../islands/PromptEditor.tsx";
 import Controls from "../islands/Controls.tsx";
 import FileProcessor from "../islands/FileProcessor.tsx";
+import { useRef } from "preact/hooks";
+import { RefObject } from "preact";
 
 interface ProcessedResult {
 	filename: string;
@@ -17,6 +19,7 @@ export default function Home() {
 	);
 	const results = useSignal<ProcessedResult[]>([]);
 	const isProcessing = useSignal(false);
+	const fileProcessorRef = useRef<{ processFiles: () => Promise<void> }>(null);
 
 	const clearResults = () => {
 		results.value = [];
@@ -37,6 +40,12 @@ export default function Home() {
 		URL.revokeObjectURL(url);
 	};
 
+	const handleProcess = () => {
+		if (fileProcessorRef.current) {
+			fileProcessorRef.current.processFiles();
+		}
+	};
+
 	return (
 		<main class="p-4 mx-auto max-w-screen-md">
 			<h1 class="text-xl mb-4">Batch Vision</h1>
@@ -44,11 +53,12 @@ export default function Home() {
 			<Controls 
 				isProcessing={isProcessing}
 				hasResults={useSignal(results.value.length > 0)}
-				onProcess={() => {}}
+				onProcess={() => handleProcess()}
 				onClear={clearResults}
 				onDownload={downloadResults}
 			/>
 			<FileProcessor 
+				ref={fileProcessorRef}
 				prompt={prompt}
 				results={results}
 				isProcessing={isProcessing}
