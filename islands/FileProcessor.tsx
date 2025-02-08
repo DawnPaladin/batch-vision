@@ -59,8 +59,6 @@ export default forwardRef(function FileProcessor(
 						throw new Error(result.error);
 					}
 					
-					console.log('Processing successful:', result);
-					
 					// Update files state using filename to identify the correct file
 					setFiles(prev => {
 						const newFiles = prev.map(f => 
@@ -73,7 +71,6 @@ export default forwardRef(function FileProcessor(
 								}
 							} : f
 						);
-						console.log('Updated files:', newFiles);
 						return newFiles;
 					});
 
