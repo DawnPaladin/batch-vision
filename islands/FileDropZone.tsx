@@ -8,22 +8,22 @@ interface FileRecord {
 	status: string;
 }
 
-export default function FileDropZone() {
-	const [files, setFiles] = useState<FileRecord[]>([]);
+interface FileDropZoneProps {
+	onFiles: (files: File[]) => void;
+}
 
-	const onDrop = useCallback((e: DragEvent) => {
+export default function FileDropZone({ onFiles }: FileDropZoneProps) {
+	const [files, setFiles] = useState<FileRecord[]>([]);
+	const [isDragging, setIsDragging] = useState(false);
+
+	const handleDrop = (e: DragEvent) => {
 		e.preventDefault();
+		setIsDragging(false);
 		
-		const droppedFiles = Array.from(e.dataTransfer?.files || []);
-		const newFileRecords: FileRecord[] = droppedFiles.map(file => ({
-			filename: file.name,
-			date: "",
-			amount: "",
-			status: "Unprocessed"
-		}));
-		
-		setFiles(prev => [...prev, ...newFileRecords]);
-	}, []);
+		const files = Array.from(e.dataTransfer?.files || []);
+		const imageFiles = files.filter(file => file.type.startsWith('image/'));
+		onFiles(imageFiles);
+	};
 
 	const onDragOver = useCallback((e: DragEvent) => {
 		e.preventDefault();
@@ -32,7 +32,7 @@ export default function FileDropZone() {
 	return (
 		<div>
 			<div
-				onDrop={onDrop}
+				onDrop={handleDrop}
 				onDragOver={onDragOver}
 				class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-gray-400 transition-colors"
 			>
