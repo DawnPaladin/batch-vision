@@ -28,56 +28,81 @@ export default function Controls({
 	onClear, 
 	onDownload 
 }: ControlsProps) {
+	const MAX_CONCURRENT = 5;
+
+	const processFile = async (fileStatus: FileStatus) => {
+		setFiles(prev => prev.map(f => 
+			f === fileStatus ? { ...f, status: 'processing' } : f
+		));
+
+		try {
+			const formData = new FormData();
+			formData.append('file', fileStatus.file);
+			formData.append('prompt', prompt.value);
+
+			const response = await fetch('/api/process-image', {
+				method: 'POST',
+				body: formData,
+			});
+
+			if (!response.ok) throw new Error('Processing failed');
+
+			const result = await response.json();
+			if (result.error) {
+				throw new Error(result.error);
+			}
+			
+			setFiles(prev => prev.map(f => 
+				f.file.name === fileStatus.file.name ? { 
+					...f, 
+					status: 'done' as const,
+					result: {
+						date: result.date,
+						amount: result.amount
+					}
+				} : f
+			));
+
+			results.value = [...results.value, {
+				filename: fileStatus.file.name,
+				date: result.date,
+				amount: result.amount
+			}];
+		} catch (error: unknown) {
+			console.error('Processing error:', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			setFiles(prev => prev.map(f => 
+				f === fileStatus ? { ...f, status: 'error', error: errorMessage } : f
+			));
+		}
+	};
+
 	const processFiles = async () => {
 		isProcessing.value = true;
 		
-		for (const fileStatus of files) {
-			if (fileStatus.status === 'done') continue;
+		const pendingFiles = files.filter(f => f.status !== 'done');
+		const activeProcesses = new Set<Promise<void>>();
 
-			setFiles(prev => prev.map(f => 
-				f === fileStatus ? { ...f, status: 'processing' } : f
-			));
-
-			try {
-				const formData = new FormData();
-				formData.append('file', fileStatus.file);
-				formData.append('prompt', prompt.value);
-
-				const response = await fetch('/api/process-image', {
-					method: 'POST',
-					body: formData,
-				});
-
-				if (!response.ok) throw new Error('Processing failed');
-
-				const result = await response.json();
-				if (result.error) {
-					throw new Error(result.error);
-				}
-				
-				setFiles(prev => prev.map(f => 
-					f.file.name === fileStatus.file.name ? { 
-						...f, 
-						status: 'done' as const,
-						result: {
-							date: result.date,
-							amount: result.amount
-						}
-					} : f
-				));
-
-				results.value = [...results.value, {
-					filename: fileStatus.file.name,
-					date: result.date,
-					amount: result.amount
-				}];
-			} catch (error: unknown) {
-				console.error('Processing error:', error);
-				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-				setFiles(prev => prev.map(f => 
-					f === fileStatus ? { ...f, status: 'error', error: errorMessage } : f
-				));
+		const processNext = () => {
+			const nextFile = pendingFiles.shift();
+			if (nextFile) {
+				const process = processFile(nextFile)
+					.finally(() => {
+						activeProcesses.delete(process);
+						processNext();
+					});
+				activeProcesses.add(process);
 			}
+		};
+
+		// Start initial batch of processes
+		for (let i = 0; i < MAX_CONCURRENT && pendingFiles.length > 0; i++) {
+			processNext();
+		}
+
+		// Wait for all processes to complete
+		while (activeProcesses.size > 0) {
+			await Promise.race(activeProcesses);
 		}
 
 		isProcessing.value = false;
