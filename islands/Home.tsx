@@ -5,13 +5,7 @@ import { useState } from "preact/hooks";
 import FileTable, { FileStatus } from "./FileTable.tsx";
 import ApiKeyInput from "./ApiKeyInput.tsx";
 import Accordion from "../components/Accordion.tsx";
-
-interface ProcessedResult {
-	filename: string;
-	date: string;
-	amount: number;
-	error?: string;
-}
+import { ProcessedResult, JsonSchema } from "../types/schema.ts";
 
 export default function Home() {
 	const prompt = useSignal(
@@ -20,6 +14,24 @@ export default function Home() {
 		"Respond only with a JSON object matching this schema: { total_amount: string, date: string }. " +
 		"The total_amount should never be null. Do not include markdown formatting in your response."
 	);
+	
+	// Add schema signal with the default schema
+	const schema = useSignal<JsonSchema>({
+		type: "object",
+		properties: {
+			date: {
+				type: "string",
+				description: "The date of the receipt in mm/dd/yyyy format.",
+			},
+			amount: {
+				type: "number",
+				description: "The amount, including tips, in monetary format.",
+			},
+		},
+		required: ["date", "amount"],
+		additionalProperties: false,
+	});
+	
 	const results = useSignal<ProcessedResult[]>([]);
 	const isProcessing = useSignal(false);
 	const [files, setFiles] = useState<FileStatus[]>([]);
@@ -74,7 +86,7 @@ export default function Home() {
 			title: "Prompt Configuration",
 			content: (
 				<>
-					<PromptEditor prompt={prompt} />
+					<PromptEditor prompt={prompt} schema={schema} />
 					<div class="flex flex-row justify-between">
 						{ prevButton }
 						{ nextButton }
@@ -95,6 +107,7 @@ export default function Home() {
 						results={results}
 						onClear={clearResults}
 						onDownload={downloadResults}
+						schema={schema}
 					/>
 					<FileTable 
 						files={files}
@@ -102,6 +115,7 @@ export default function Home() {
 							file,
 							status: 'ready' as const
 						}))])}
+						schema={schema}
 					/>
 				</>
 			)
@@ -109,7 +123,7 @@ export default function Home() {
 	];
 
 	return (
-		<main class="p-4 mx-auto max-w-[800px]">
+		<main class="p-4">
 			<h1 class="text-xl mb-4">Batch Vision</h1>
 			<Accordion 
 				sections={accordionSections}

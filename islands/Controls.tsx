@@ -1,6 +1,7 @@
 import { Signal } from "@preact/signals";
 import { FileStatus } from './FileTable.tsx';
 import { JSX } from "preact/jsx-runtime";
+import { JsonSchema, ProcessedResult } from "../types/schema.ts";
 
 interface ControlsProps {
 	prevButton: JSX.Element,
@@ -11,13 +12,7 @@ interface ControlsProps {
 	results: Signal<ProcessedResult[]>;
 	onClear: () => void;
 	onDownload: () => void;
-}
-
-interface ProcessedResult {
-	filename: string;
-	date: string;
-	amount: number;
-	error?: string;
+	schema: Signal<JsonSchema>;
 }
 
 export default function Controls({
@@ -28,7 +23,8 @@ export default function Controls({
 	setFiles,
 	results,
 	onClear, 
-	onDownload 
+	onDownload,
+	schema
 }: ControlsProps) {
 	const MAX_CONCURRENT = 5;
 
@@ -42,6 +38,7 @@ export default function Controls({
 			formData.append('file', fileStatus.file);
 			formData.append('prompt', prompt.value);
 			formData.append('apiKey', localStorage.getItem('openai_api_key') || '');
+			formData.append('schema', JSON.stringify(schema.value));
 
 			const response = await fetch('/api/process-image', {
 				method: 'POST',
@@ -59,17 +56,13 @@ export default function Controls({
 				f.file.name === fileStatus.file.name ? { 
 					...f, 
 					status: 'done' as const,
-					result: {
-						date: result.date,
-						amount: result.amount
-					}
+					result: result
 				} : f
 			));
 
 			results.value = [...results.value, {
 				filename: fileStatus.file.name,
-				date: result.date,
-				amount: result.amount
+				...result
 			}];
 		} catch (error: unknown) {
 			console.error('Processing error:', error);

@@ -10,6 +10,7 @@ export async function handler(req: Request) {
 		const file = formData.get("file") as File;
 		const prompt = formData.get("prompt") as string;
 		const apiKey = formData.get("apiKey") as string;
+		const schemaString = formData.get("schema") as string;
 
 		if (!file || !prompt) {
 			return new Response(
@@ -42,7 +43,7 @@ export async function handler(req: Request) {
 
 		const openai = new OpenAI({	apiKey });
 
-		const jsonSchema = {
+		const defaultSchema = {
 			"type": "object",
 			"properties": {
 				"date": {
@@ -61,6 +62,21 @@ export async function handler(req: Request) {
 			],
 			"additionalProperties": false,
 		};
+
+		// Use custom schema if provided, otherwise use default
+		let jsonSchema;
+		if (schemaString) {
+			try {
+				jsonSchema = JSON.parse(schemaString);
+			} catch (error) {
+				console.error("Error parsing custom schema:", error);
+				// Fall back to default schema if parsing fails
+				jsonSchema = defaultSchema;
+			}
+		} else {
+			// Default schema
+			jsonSchema = defaultSchema;
+		}
 
 		const response = await openai.chat.completions.create({
 			model: "gpt-4o",
@@ -102,32 +118,74 @@ export async function handler(req: Request) {
 			// Clean up markdown code blocks if present
 			const cleanResult = result.replace(/```json\s*|\s*```/g, "");
 			const parsedJson = JSON.parse(cleanResult);
-
-			// Handle both amount or total_amount fields
-			const amount = parsedJson.amount || parsedJson.total_amount;
-
-			// Validate the expected structure
-			if (!parsedJson.date) {
-				throw new Error("Missing date in response");
+			
+			// Make a copy of parsed JSON for our result
+			processedResult = { ...parsedJson };
+			
+			// Validate required fields based on schema
+			for (const requiredField of jsonSchema.required) {
+				if (parsedJson[requiredField] === undefined || parsedJson[requiredField] === null) {
+					throw new Error(`Missing required field: ${requiredField}`);
+				}
 			}
-
-			// Handle null/missing amount more gracefully
-			if (!amount) {
-				throw new Error("No amount found in receipt");
+			
+			// Validate and convert types for each field according to schema
+			for (const [fieldName, fieldValue] of Object.entries(parsedJson)) {
+				if (jsonSchema.properties[fieldName]) {
+					const expectedType = jsonSchema.properties[fieldName].type;
+					
+					// Handle type conversion or validation
+					try {
+						switch (expectedType) {
+							case 'number':
+								// Convert string numbers to actual numbers
+								if (typeof fieldValue === 'string') {
+									const cleanValue = fieldValue.replace(/[^0-9.-]/g, "");
+									const numericValue = parseFloat(cleanValue);
+									if (isNaN(numericValue)) {
+										throw new Error(`Invalid number format for field: ${fieldName}`);
+									}
+									processedResult[fieldName] = numericValue;
+								} else if (typeof fieldValue !== 'number') {
+									throw new Error(`Field ${fieldName} should be a number`);
+								}
+								break;
+							
+							case 'string':
+								// Ensure value is a string
+								if (typeof fieldValue !== 'string') {
+									processedResult[fieldName] = String(fieldValue);
+								}
+								break;
+								
+							case 'boolean':
+								// Convert string 'true'/'false' to actual booleans
+								if (typeof fieldValue === 'string') {
+									if (fieldValue.toLowerCase() === 'true') {
+										processedResult[fieldName] = true;
+									} else if (fieldValue.toLowerCase() === 'false') {
+										processedResult[fieldName] = false;
+									} else {
+										throw new Error(`Invalid boolean value for field: ${fieldName}`);
+									}
+								} else if (typeof fieldValue !== 'boolean') {
+									throw new Error(`Field ${fieldName} should be a boolean`);
+								}
+								break;
+								
+							default:
+								// For unsupported types, just keep as is
+								console.warn(`Unsupported type ${expectedType} for field ${fieldName}`);
+								break;
+						}
+					} catch (error) {
+						// If type conversion fails, include the error in the result
+						if (error instanceof Error) {
+							processedResult[`${fieldName}_error`] = error.message;
+						}
+					}
+				}
 			}
-
-			// Clean up amount string and convert to number
-			const cleanAmount = amount.toString().replace(/[^0-9.-]/g, "");
-			const numericAmount = parseFloat(cleanAmount);
-			if (isNaN(numericAmount)) {
-				throw new Error("Invalid amount format");
-			}
-
-			// Transform to our expected format
-			processedResult = {
-				date: parsedJson.date,
-				amount: numericAmount,
-			};
 		} catch (error: unknown) {
 			const errorMessage = error instanceof Error
 				? error.message
