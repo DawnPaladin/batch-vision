@@ -9,10 +9,21 @@ export async function handler(req: Request) {
 		const formData = await req.formData();
 		const file = formData.get("file") as File;
 		const prompt = formData.get("prompt") as string;
+		const apiKey = formData.get("apiKey") as string;
 
 		if (!file || !prompt) {
 			return new Response(
 				JSON.stringify({ error: "Missing file or prompt" }),
+				{
+					status: 400,
+					headers: { "Content-Type": "application/json" },
+				},
+			);
+		}
+
+		if (!apiKey) {
+			return new Response(
+				JSON.stringify({ error: "Missing API key" }),
 				{
 					status: 400,
 					headers: { "Content-Type": "application/json" },
@@ -29,9 +40,7 @@ export async function handler(req: Request) {
 			),
 		);
 
-		const openai = new OpenAI({
-			apiKey: Deno.env.get("OPENAI_API_KEY"),
-		});
+		const openai = new OpenAI({	apiKey });
 
 		const response = await openai.chat.completions.create({
 			model: "gpt-4o",

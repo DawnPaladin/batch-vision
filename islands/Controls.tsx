@@ -39,6 +39,7 @@ export default function Controls({
 			const formData = new FormData();
 			formData.append('file', fileStatus.file);
 			formData.append('prompt', prompt.value);
+			formData.append('apiKey', localStorage.getItem('openai_api_key') || '');
 
 			const response = await fetch('/api/process-image', {
 				method: 'POST',
