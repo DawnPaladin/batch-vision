@@ -42,6 +42,26 @@ export async function handler(req: Request) {
 
 		const openai = new OpenAI({	apiKey });
 
+		const jsonSchema = {
+			"type": "object",
+			"properties": {
+				"date": {
+					"type": "string",
+					"description":
+						"The date of the receipt in mm/dd/yyyy format.",
+				},
+				"amount": {
+					"type": "number",
+					"description": "The amount, including tips, in monetary format.",
+				},
+			},
+			"required": [
+				"date",
+				"amount",
+			],
+			"additionalProperties": false,
+		};
+
 		const response = await openai.chat.completions.create({
 			model: "gpt-4o",
 			messages: [
@@ -62,25 +82,7 @@ export async function handler(req: Request) {
 				"type": "json_schema",
 				"json_schema": {
 					"name": "receipt_data",
-					"schema": {
-						"type": "object",
-						"properties": {
-							"date": {
-								"type": "string",
-								"description":
-									"The date of the receipt in mm/dd/yyyy format.",
-							},
-							"amount": {
-								"type": "number",
-								"description": "The amount, including tips, in monetary format.",
-							},
-						},
-						"required": [
-							"date",
-							"amount",
-						],
-						"additionalProperties": false,
-					},
+					"schema": jsonSchema,
 					"strict": true,
 				},
 			},
