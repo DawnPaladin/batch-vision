@@ -4,6 +4,7 @@ import Controls from "./Controls.tsx";
 import { useState } from "preact/hooks";
 import FileTable, { FileStatus } from "./FileTable.tsx";
 import ApiKeyInput from "./ApiKeyInput.tsx";
+import Accordion from "../components/Accordion.tsx";
 
 interface ProcessedResult {
 	filename: string;
@@ -43,27 +44,44 @@ export default function Home() {
 		URL.revokeObjectURL(url);
 	};
 
+	const accordionSections = [
+		{
+			title: "API Key Configuration",
+			content: <ApiKeyInput />
+		},
+		{
+			title: "Prompt Configuration",
+			content: <PromptEditor prompt={prompt} />
+		},
+		{
+			title: "File Processing",
+			content: (
+				<>
+					<Controls 
+						isProcessing={isProcessing}
+						prompt={prompt}
+						files={files}
+						setFiles={setFiles}
+						results={results}
+						onClear={clearResults}
+						onDownload={downloadResults}
+					/>
+					<FileTable 
+						files={files}
+						onFilesDrop={(newFiles) => setFiles(prev => [...prev, ...newFiles.map(file => ({
+							file,
+							status: 'ready' as const
+						}))])}
+					/>
+				</>
+			)
+		}
+	];
+
 	return (
 		<main class="p-4 mx-auto max-w-screen-md">
 			<h1 class="text-xl mb-4">Batch Vision</h1>
-			<ApiKeyInput />
-			<PromptEditor prompt={prompt} />
-			<Controls 
-				isProcessing={isProcessing}
-				prompt={prompt}
-				files={files}
-				setFiles={setFiles}
-				results={results}
-				onClear={clearResults}
-				onDownload={downloadResults}
-			/>
-			<FileTable 
-				files={files}
-				onFilesDrop={(newFiles) => setFiles(prev => [...prev, ...newFiles.map(file => ({
-					file,
-					status: 'ready' as const
-				}))])}
-			/>
+			<Accordion sections={accordionSections} defaultOpenIndex={0} />
 		</main>
 	);
 } 
