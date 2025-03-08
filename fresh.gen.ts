@@ -7,6 +7,7 @@ import * as $_app from "./routes/_app.tsx";
 import * as $api_process_image from "./routes/api/process-image.ts";
 import * as $greet_name_ from "./routes/greet/[name].tsx";
 import * as $index from "./routes/index.tsx";
+import * as $ApiKeyInput from "./islands/ApiKeyInput.tsx";
 import * as $Controls from "./islands/Controls.tsx";
 import * as $FileDropZone from "./islands/FileDropZone.tsx";
 import * as $FileTable from "./islands/FileTable.tsx";
@@ -23,6 +24,7 @@ const manifest = {
 		"./routes/index.tsx": $index,
 	},
 	islands: {
+		"./islands/ApiKeyInput.tsx": $ApiKeyInput,
 		"./islands/Controls.tsx": $Controls,
 		"./islands/FileDropZone.tsx": $FileDropZone,
 		"./islands/FileTable.tsx": $FileTable,

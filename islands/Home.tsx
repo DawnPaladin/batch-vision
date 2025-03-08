@@ -3,6 +3,7 @@ import PromptEditor from "./PromptEditor.tsx";
 import Controls from "./Controls.tsx";
 import { useState } from "preact/hooks";
 import FileTable, { FileStatus } from "./FileTable.tsx";
+import ApiKeyInput from "./ApiKeyInput.tsx";
 
 interface ProcessedResult {
 	filename: string;
@@ -45,6 +46,7 @@ export default function Home() {
 	return (
 		<main class="p-4 mx-auto max-w-screen-md">
 			<h1 class="text-xl mb-4">Batch Vision</h1>
+			<ApiKeyInput />
 			<PromptEditor prompt={prompt} />
 			<Controls 
 				isProcessing={isProcessing}
