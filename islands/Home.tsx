@@ -109,7 +109,7 @@ export default function Home() {
 	];
 
 	return (
-		<main class="p-4 mx-auto max-w-screen-md">
+		<main class="p-4 mx-auto max-w-[800px]">
 			<h1 class="text-xl mb-4">Batch Vision</h1>
 			<Accordion 
 				sections={accordionSections}
