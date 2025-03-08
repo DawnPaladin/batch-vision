@@ -24,7 +24,7 @@ export default function ApiKeyInput() {
 				</a>
 			</label>
 			<input
-				type="password"
+				type="text"
 				id="api-key"
 				value={apiKey}
 				onInput={handleApiKeyChange}
