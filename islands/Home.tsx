@@ -15,7 +15,7 @@ interface ProcessedResult {
 
 export default function Home() {
 	const prompt = useSignal(
-		"Please extract the date and the total amount from this image of a receipt. " +
+		"Please extract the date and the total amount from this image. " +
 		"Totals should include tips where present. If you cannot find a total amount, respond with an error message. " +
 		"Respond only with a JSON object matching this schema: { total_amount: string, date: string }. " +
 		"The total_amount should never be null. Do not include markdown formatting in your response."
@@ -57,7 +57,7 @@ export default function Home() {
 		}
 	};
 
-	const nextButton = <button onClick={handleNext} class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors float-right mb-2">Next</button>
+	const nextButton = <button onClick={handleNext} class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">Next</button>
 	const prevButton = <button onClick={handlePrev} class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">Previous</button>
 
 	const accordionSections = [
@@ -66,7 +66,7 @@ export default function Home() {
 			content: (
 				<>
 					<ApiKeyInput />
-					{ nextButton }
+					<div class="flex flex-row justify-end">{ nextButton }</div>
 				</>
 			)
 		},
