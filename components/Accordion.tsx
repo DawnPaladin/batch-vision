@@ -1,5 +1,4 @@
 import { ComponentChildren } from "preact";
-import { useState } from "preact/hooks";
 
 interface AccordionSectionProps {
 	title: string;
@@ -8,7 +7,12 @@ interface AccordionSectionProps {
 	onToggle: () => void;
 }
 
-function AccordionSection({ title, children, isOpen, onToggle }: AccordionSectionProps) {
+function AccordionSection({ 
+	title, 
+	children, 
+	isOpen, 
+	onToggle,
+}: AccordionSectionProps) {
 	return (
 		<div class="border rounded-lg mb-2 overflow-hidden">
 			<button
@@ -18,7 +22,7 @@ function AccordionSection({ title, children, isOpen, onToggle }: AccordionSectio
 				<span>{title}</span>
 			</button>
 			<div
-				class="transition-all duration-200 overflow-hidden"
+				class="transition-all duration-300 overflow-hidden"
 				style={{ maxHeight: isOpen ? '1000px' : '0', opacity: isOpen ? 1 : 0 }}
 			>
 				<div class="p-4">
@@ -34,20 +38,19 @@ interface AccordionProps {
 		title: string;
 		content: ComponentChildren;
 	}[];
-	defaultOpenIndex?: number;
+	openIndex: number;
+	onSectionChange: (index: number) => void;
 }
 
-export default function Accordion({ sections, defaultOpenIndex = 0 }: AccordionProps) {
-	const [openSectionIndex, setOpenSectionIndex] = useState(defaultOpenIndex);
-
+export default function Accordion({ sections, openIndex, onSectionChange }: AccordionProps) {
 	return (
 		<div>
 			{sections.map((section, index) => (
 				<AccordionSection
 					key={index}
 					title={section.title}
-					isOpen={index === openSectionIndex}
-					onToggle={() => setOpenSectionIndex(index)}
+					isOpen={index === openIndex}
+					onToggle={() => onSectionChange(index)}
 				>
 					{section.content}
 				</AccordionSection>

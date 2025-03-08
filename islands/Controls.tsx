@@ -1,8 +1,9 @@
 import { Signal } from "@preact/signals";
-import { useState } from "preact/hooks";
 import { FileStatus } from './FileTable.tsx';
+import { JSX } from "preact/jsx-runtime";
 
 interface ControlsProps {
+	prevButton: JSX.Element,
 	isProcessing: Signal<boolean>;
 	prompt: Signal<string>;
 	files: FileStatus[];
@@ -19,7 +20,8 @@ interface ProcessedResult {
 	error?: string;
 }
 
-export default function Controls({ 
+export default function Controls({
+	prevButton,
 	isProcessing, 
 	prompt,
 	files,
@@ -111,6 +113,7 @@ export default function Controls({
 
 	return (
 		<div class="flex justify-center mb-4 gap-2">
+			{ prevButton }
 			<button
 				class="flex-grow px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors disabled:bg-gray-400"
 				onClick={processFiles}

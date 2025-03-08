@@ -23,6 +23,7 @@ export default function Home() {
 	const results = useSignal<ProcessedResult[]>([]);
 	const isProcessing = useSignal(false);
 	const [files, setFiles] = useState<FileStatus[]>([]);
+	const [openSectionIndex, setOpenSectionIndex] = useState(0);
 
 	const clearResults = () => {
 		results.value = [];
@@ -44,20 +45,49 @@ export default function Home() {
 		URL.revokeObjectURL(url);
 	};
 
+	const handleNext = () => {
+		if (openSectionIndex < accordionSections.length - 1) {
+			setOpenSectionIndex(openSectionIndex + 1);
+		}
+	};
+
+	const handlePrev = () => {
+		if (openSectionIndex > 0) {
+			setOpenSectionIndex(openSectionIndex - 1);
+		}
+	};
+
+	const nextButton = <button onClick={handleNext} class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors float-right mb-2">Next</button>
+	const prevButton = <button onClick={handlePrev} class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors">Previous</button>
+
 	const accordionSections = [
 		{
 			title: "API Key Configuration",
-			content: <ApiKeyInput />
+			content: (
+				<>
+					<ApiKeyInput />
+					{ nextButton }
+				</>
+			)
 		},
 		{
 			title: "Prompt Configuration",
-			content: <PromptEditor prompt={prompt} />
+			content: (
+				<>
+					<PromptEditor prompt={prompt} />
+					<div class="flex flex-row justify-between">
+						{ prevButton }
+						{ nextButton }
+					</div>
+				</>
+			)
 		},
 		{
 			title: "File Processing",
 			content: (
 				<>
-					<Controls 
+					<Controls
+						prevButton={prevButton}
 						isProcessing={isProcessing}
 						prompt={prompt}
 						files={files}
@@ -81,7 +111,11 @@ export default function Home() {
 	return (
 		<main class="p-4 mx-auto max-w-screen-md">
 			<h1 class="text-xl mb-4">Batch Vision</h1>
-			<Accordion sections={accordionSections} defaultOpenIndex={0} />
+			<Accordion 
+				sections={accordionSections}
+				openIndex={openSectionIndex}
+				onSectionChange={setOpenSectionIndex}
+			/>
 		</main>
 	);
 } 
