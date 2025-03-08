@@ -19,6 +19,7 @@ export default function ApiKeyInput() {
 				<a
 					class="text-blue-500 underline"
 					href="https://platform.openai.com/api-keys"
+					target="_blank"
 				>
 					OpenAI API key
 				</a>
