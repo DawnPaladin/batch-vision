@@ -84,9 +84,90 @@ export default function PromptEditor({ prompt, schema }: PromptEditorProps) {
 	};
 
 	return (
-		<div class="space-y-6">
-			<div>
-				<div class="mb-2">Prompt:</div>
+		<div>
+			<div class="flex justify-between items-center mb-2">
+				<h2 class="text-lg font-semibold">Schema</h2>
+				<button 
+					onClick={saveSchema}
+					class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+				>
+					Save Schema
+				</button>
+			</div>
+
+			<div class="overflow-x-auto">
+				<table class="min-w-full bg-white border rounded-lg">
+					<thead>
+						<tr class="bg-gray-100">
+							<th class="py-2 px-4 border-b text-left">Property Name</th>
+							<th class="py-2 px-4 border-b text-left">Type</th>
+							<th class="py-2 px-4 border-b text-left">Description</th>
+							<th class="py-2 px-4 border-b text-center">Required</th>
+							<th class="py-2 px-4 border-b text-center">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{properties.map((property, index) => (
+							<tr key={index} class="border-b hover:bg-gray-50">
+								<td class="py-2 px-4">
+									<input
+										type="text"
+										class="w-full p-1 border rounded"
+										value={property.name}
+										onChange={(e) => updateProperty(index, "name", e.currentTarget.value)}
+									/>
+								</td>
+								<td class="py-2 px-4">
+									<select
+										class="w-full p-1 border rounded"
+										value={property.type}
+										onChange={(e) => updateProperty(index, "type", e.currentTarget.value)}
+									>
+										{availableTypes.map(type => (
+											<option key={type} value={type}>{type}</option>
+										))}
+									</select>
+								</td>
+								<td class="py-2 px-4">
+									<input
+										type="text"
+										class="w-full p-1 border rounded"
+										value={property.description}
+										onChange={(e) => updateProperty(index, "description", e.currentTarget.value)}
+									/>
+								</td>
+								<td class="py-2 px-4 text-center">
+									<input
+										type="checkbox"
+										checked={property.required}
+										onChange={(e) => updateProperty(index, "required", e.currentTarget.checked)}
+									/>
+								</td>
+								<td class="py-2 px-4 text-center">
+									<button
+										onClick={() => removeProperty(index)}
+										class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
+									>
+										Remove
+									</button>
+								</td>
+							</tr>
+						))}
+						<tr>
+							<td>
+								<button
+									onClick={addProperty}
+									class="m-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+								>
+									Add Property
+								</button>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="my-2">
+				<h2 class="text-lg font-semibold mb-2">Prompt</h2>
 				<textarea
 					class="w-full p-2 border rounded-lg mb-4 min-h-[100px]"
 					value={prompt.value}
@@ -94,86 +175,6 @@ export default function PromptEditor({ prompt, schema }: PromptEditorProps) {
 				/>
 			</div>
 
-			<div>
-				<div class="flex justify-between items-center mb-2">
-					<h2 class="text-lg font-semibold">JSON Schema Properties</h2>
-					<button 
-						onClick={saveSchema}
-						class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-					>
-						Save Schema
-					</button>
-				</div>
-
-				<div class="overflow-x-auto">
-					<table class="min-w-full bg-white border rounded-lg">
-						<thead>
-							<tr class="bg-gray-100">
-								<th class="py-2 px-4 border-b text-left">Property Name</th>
-								<th class="py-2 px-4 border-b text-left">Type</th>
-								<th class="py-2 px-4 border-b text-left">Description</th>
-								<th class="py-2 px-4 border-b text-center">Required</th>
-								<th class="py-2 px-4 border-b text-center">Actions</th>
-							</tr>
-						</thead>
-						<tbody>
-							{properties.map((property, index) => (
-								<tr key={index} class="border-b hover:bg-gray-50">
-									<td class="py-2 px-4">
-										<input
-											type="text"
-											class="w-full p-1 border rounded"
-											value={property.name}
-											onChange={(e) => updateProperty(index, "name", e.currentTarget.value)}
-										/>
-									</td>
-									<td class="py-2 px-4">
-										<select
-											class="w-full p-1 border rounded"
-											value={property.type}
-											onChange={(e) => updateProperty(index, "type", e.currentTarget.value)}
-										>
-											{availableTypes.map(type => (
-												<option key={type} value={type}>{type}</option>
-											))}
-										</select>
-									</td>
-									<td class="py-2 px-4">
-										<input
-											type="text"
-											class="w-full p-1 border rounded"
-											value={property.description}
-											onChange={(e) => updateProperty(index, "description", e.currentTarget.value)}
-										/>
-									</td>
-									<td class="py-2 px-4 text-center">
-										<input
-											type="checkbox"
-											checked={property.required}
-											onChange={(e) => updateProperty(index, "required", e.currentTarget.checked)}
-										/>
-									</td>
-									<td class="py-2 px-4 text-center">
-										<button
-											onClick={() => removeProperty(index)}
-											class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-										>
-											Remove
-										</button>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</div>
-
-				<button
-					onClick={addProperty}
-					class="mt-4 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-				>
-					Add Property
-				</button>
-			</div>
 		</div>
 	);
 } 
