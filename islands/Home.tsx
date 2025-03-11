@@ -133,7 +133,10 @@ export default function Home() {
 				</div>
 				<div class="flex flex-row items-center bg-cyan-50 border-cyan-200 border-2 rounded-xl my-2 py-2">
 					<img src="info.svg" alt="Info" class="m-3" />
-					<p>This tool does not collect any revenue. Instead, you will need to set up an account with OpenAI and <a href="https://platform.openai.com/settings/organization/billing/overview">purchase credit</a> with them. Create an <a href="https://platform.openai.com/api-keys">API key</a> and paste it into the box below; that will charge your usage of this tool to your account with OpenAI.</p>
+					<div class="flex flex-col gap-2">
+						<p>This tool does not collect any revenue. Instead, you will need to set up an account with OpenAI and <a href="https://platform.openai.com/settings/organization/billing/overview">purchase credit</a> with them. Create an <a href="https://platform.openai.com/api-keys">API key</a> and paste it into the box below; that will charge your usage of this tool to your account with OpenAI.</p>
+						<p>LLM used: GPT-4o. Pricing is roughly on the order of 2 cents per megabyte, but this is just an estimate; you can track your usage <a href="https://platform.openai.com/usage">here</a>.</p>
+					</div>
 				</div>
 				
 			</div>
