@@ -22,7 +22,16 @@ function displayStatus(fileStatus: FileStatus) {
 		case 'ready': return 'Ready';
 		case 'processing': return <Spinner/>;
 		case 'done': return 'Done';
-		case 'error': return <span class="text-red-600">Error</span>
+		case 'error': return (
+			<div class="flex items-center">
+				<span class="text-red-600 mr-1">Error</span>
+				{fileStatus.error && (
+					<span class="text-sm text-red-500" title={fileStatus.error}>
+						<img src="alert-triangle.svg" alt="Warning" class="m-3 inline-block" />
+					</span>
+				)}
+			</div>
+		);
 		default: break;
 	}
 }
@@ -32,7 +41,12 @@ function formatValue(key: string, value: any, errors?: Record<string, string>): 
     // Check if there's an error for this field
     const errorKey = `${key}_error`;
     if (errors && errors[errorKey]) {
-        return <span class="text-red-500" title={errors[errorKey]}>Error: {errors[errorKey]}</span>;
+        return (
+            <div class="text-red-500">
+                <img src="alert-triangle.svg" alt="Warning" class="m-3 inline-block" />
+                <span title={errors[errorKey]}>Failed to extract</span>
+            </div>
+        );
     }
     
     if (value === undefined || value === null) {
@@ -92,12 +106,24 @@ export default function FileTable({ files, onFilesDrop, schema }: FileTableProps
                             return (
                                 <tr key={index} class="border-t">
                                     <td class="p-2">{fileStatus.file.name}</td>
-                                    <td class="p-2">{displayStatus(fileStatus)}</td>
+                                    <td class="p-2">
+                                        {displayStatus(fileStatus)}
+                                        {fileStatus.error && (
+                                            <div class="text-xs text-red-500 mt-1">
+                                                {fileStatus.error}
+                                            </div>
+                                        )}
+                                    </td>
                                     {propertyNames.map(prop => (
                                         <td key={prop} class="p-2">
                                             {fileStatus.result 
                                                 ? formatValue(prop, fileStatus.result[prop], errors)
-                                                : fileStatus.error && <span class="text-red-500">{fileStatus.error}</span>
+                                                : fileStatus.status === 'error' && (
+                                                    <div class="text-red-500">
+                                                        <img src="alert-triangle.svg" alt="Warning" class="m-3 inline-block" />
+                                                        <span>Failed to process</span>
+                                                    </div>
+                                                )
                                             }
                                         </td>
                                     ))}

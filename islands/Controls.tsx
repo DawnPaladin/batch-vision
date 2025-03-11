@@ -45,11 +45,10 @@ export default function Controls({
 				body: formData,
 			});
 
-			if (!response.ok) throw new Error('Processing failed');
-
 			const result = await response.json();
-			if (result.error) {
-				throw new Error(result.error);
+			
+			if (!response.ok || result.error) {
+				throw new Error(result.error || `Processing failed: ${response.statusText}`);
 			}
 			
 			setFiles(prev => prev.map(f => 
@@ -66,9 +65,17 @@ export default function Controls({
 			}];
 		} catch (error: unknown) {
 			console.error('Processing error:', error);
-			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			const errorMessage = error instanceof Error 
+				? error.message 
+				: 'An unexpected error occurred while processing the file';
+			
 			setFiles(prev => prev.map(f => 
-				f === fileStatus ? { ...f, status: 'error', error: errorMessage } : f
+				f === fileStatus ? { 
+					...f, 
+					status: 'error', 
+					error: errorMessage,
+					result: undefined  // Clear any partial results
+				} : f
 			));
 		}
 	};
