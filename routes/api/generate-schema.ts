@@ -4,11 +4,18 @@ import { JsonSchema } from "../../types/schema.ts";
 export const handler: Handlers = {
   async POST(req) {
     try {
-      const { imagesOf, schemaDescription } = await req.json();
+      const { imagesOf, schemaDescription, apiKey } = await req.json();
       
       if (!imagesOf || !schemaDescription) {
         return new Response(
           JSON.stringify({ error: "Missing required fields" }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        );
+      }
+
+      if (!apiKey) {
+        return new Response(
+          JSON.stringify({ error: "Missing API key" }),
           { status: 400, headers: { "Content-Type": "application/json" } }
         );
       }
@@ -42,7 +49,7 @@ Please create a JSON schema that defines these properties with appropriate types
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${Deno.env.get("OPENAI_API_KEY")}`,
+          "Authorization": `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
           model: "gpt-4o",

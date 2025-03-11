@@ -34,6 +34,12 @@ export default function PromptEditor({ prompt, schema }: PromptEditorProps) {
 			return;
 		}
 
+		const apiKey = localStorage.getItem("openai_api_key");
+		if (!apiKey) {
+			setError("Please enter your OpenAI API key in the API Key Configuration section");
+			return;
+		}
+
 		setIsGenerating(true);
 		setError("");
 
@@ -46,6 +52,7 @@ export default function PromptEditor({ prompt, schema }: PromptEditorProps) {
 				body: JSON.stringify({
 					imagesOf: imagesOf.trim(),
 					schemaDescription: schemaDescription.trim(),
+					apiKey,
 				}),
 			});
 
