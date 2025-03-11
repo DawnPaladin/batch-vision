@@ -2,7 +2,15 @@ import { useSignal } from "@preact/signals";
 import { useEffect } from "preact/hooks";
 
 export default function ApiKeyInput() {
-	const apiKey = useSignal(localStorage.getItem("openai_api_key") || "");
+	const apiKey = useSignal("");
+
+	useEffect(() => {
+		// Access localStorage only in the browser
+		const savedApiKey = localStorage.getItem("openai_api_key");
+		if (savedApiKey) {
+			apiKey.value = savedApiKey;
+		}
+	}, []);
 
 	const handleApiKeyChange = (e: Event) => {
 		const value = (e.target as HTMLInputElement).value;
