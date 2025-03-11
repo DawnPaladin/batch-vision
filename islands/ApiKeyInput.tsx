@@ -17,7 +17,6 @@ export default function ApiKeyInput() {
 				class="block text-sm font-medium text-gray-700 mb-1"
 			>
 				<a
-					class="text-blue-500 underline"
 					href="https://platform.openai.com/api-keys"
 					target="_blank"
 				>

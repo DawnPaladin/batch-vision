@@ -85,6 +85,9 @@ export default function PromptEditor({ prompt, schema }: PromptEditorProps) {
 
 	return (
 		<div>
+			<label htmlFor="imagesOf">What are you uploading images of?</label>
+			<input type="text" id="imagesOf"/>
+
 			<div class="flex justify-between items-center mb-2">
 				<h2 class="text-lg font-semibold">Schema</h2>
 				<button 
