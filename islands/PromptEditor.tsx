@@ -85,8 +85,15 @@ export default function PromptEditor({ prompt, schema }: PromptEditorProps) {
 
 	return (
 		<div>
-			<label htmlFor="imagesOf">What are you uploading images of?</label>
-			<input type="text" id="imagesOf"/>
+			<div>
+				<label htmlFor="imagesOf">What are you uploading images of?</label>
+				<input type="text" id="imagesOf" class="border border-blue-500 rounded m-2" />
+			</div>
+			<div>
+				<label htmlFor="schemaDescription">What information do you need out of each image?</label>
+				<textarea type="text" id="schemaDescription" class="block border border-blue-500 rounded my-2 max-w-screen-lg w-full h-24" />
+			</div>
+			<button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Generate prompt</button>
 
 			<div class="flex justify-between items-center mb-2">
 				<h2 class="text-lg font-semibold">Schema</h2>
