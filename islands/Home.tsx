@@ -6,6 +6,7 @@ import FileTable, { FileStatus } from "./FileTable.tsx";
 import ApiKeyInput from "./ApiKeyInput.tsx";
 import Accordion from "../components/Accordion.tsx";
 import { ProcessedResult, JsonSchema } from "../types/schema.ts";
+import { generateCsv, downloadCsv } from "../utils/csv.ts";
 
 export default function Home() {
 	const prompt = useSignal(
@@ -43,18 +44,8 @@ export default function Home() {
 	};
 
 	const downloadResults = () => {
-		const csv = [
-			'Filename,Date,Amount',
-			...results.value.map(r => `${r.filename},${r.date},${r.amount}`),
-		].join('\n');
-
-		const blob = new Blob([csv], { type: 'text/csv' });
-		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = 'receipt-results.csv';
-		a.click();
-		URL.revokeObjectURL(url);
+		const csvContent = generateCsv(results.value, schema.value);
+		downloadCsv(csvContent);
 	};
 
 	const handleNext = () => {
