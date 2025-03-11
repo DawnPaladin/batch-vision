@@ -126,7 +126,8 @@ export default function Home() {
 		<main class="p-4">
 			<div className="max-w-screen-lg">
 				<h1 class="text-xl mb-4">Batch Vision</h1>
-				<p>This is a tool for taking a bunch of images and getting specific pieces of data out of each one. I used it to take hundreds of receipts and get the date and total from each. LLMs are quite good at reading handwriting and figuring out which number in the image is the one you want.</p>
+				<p class="my-2">This is a tool for taking a bunch of images and getting specific pieces of data out of each one. I used it to take hundreds of receipts and get the date and total from each. LLMs are quite good at reading handwriting and figuring out which number in the image is the one you want.</p>
+				<p class="mt-2 mb-4">If you notice any bugs or have any feature requests, please <a href="https://github.com/DawnPaladin/batch-vision/issues">open an issue on GitHub</a>.</p>
 				<div class="flex flex-row items-center bg-yellow-100 border-yellow-400 rounded-xl border-2 my-2 py-2">
 					<img src="alert-triangle.svg" alt="Warning" class="m-3" />
 					LLMs don't always get it right. I recommend running your data twice and comparing the runs to catch most of the errors. Exercise an amount of caution appropriate to the seriousness of any mistakes.
@@ -135,7 +136,7 @@ export default function Home() {
 					<img src="info.svg" alt="Info" class="m-3" />
 					<div class="flex flex-col gap-2">
 						<p>This tool does not collect any revenue. Instead, you will need to set up an account with OpenAI and <a href="https://platform.openai.com/settings/organization/billing/overview">purchase credit</a> with them. Create an <a href="https://platform.openai.com/api-keys">API key</a> and paste it into the box below; that will charge your usage of this tool to your account with OpenAI.</p>
-						<p>LLM used: GPT-4o. Pricing is roughly on the order of 2 cents per megabyte, but this is just an estimate; you can track your usage <a href="https://platform.openai.com/usage">here</a>.</p>
+						<p>LLM used: GPT-4o. Pricing is roughly on the order of 2 cents per megabyte, but this is just an estimate; you can <a href="https://platform.openai.com/usage">track your usage here</a>.</p>
 					</div>
 				</div>
 				
