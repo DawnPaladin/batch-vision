@@ -12,6 +12,8 @@ export default function ApiKeyInput() {
 
 	return (
 		<div class="mb-4">
+			<p class="mb-2">This tool does not collect any revenue. Instead, you will need to set up an account with OpenAI and <a href="https://platform.openai.com/settings/organization/billing/overview">purchase credit</a> with them. Create an <a href="https://platform.openai.com/api-keys">API key</a> and paste it into the box below; that will charge your usage of this tool to your account with OpenAI.</p>
+			<p class="my-2">LLM used: GPT-4o. Pricing is roughly on the order of 2 cents per megabyte, but this is just an estimate; you can <a href="https://platform.openai.com/usage">track your usage here</a>.</p>
 			<label
 				for="api-key"
 				class="block text-sm font-medium text-gray-700 mb-1"
