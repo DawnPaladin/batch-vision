@@ -23,7 +23,7 @@ function AccordionSection({
 			</button>
 			<div
 				class="transition-all duration-300 overflow-hidden"
-				style={{ maxHeight: isOpen ? '1000px' : '0', opacity: isOpen ? 1 : 0 }}
+				style={{ maxHeight: isOpen ? '1500px' : '0', opacity: isOpen ? 1 : 0 }}
 			>
 				<div class="p-4">
 					{children}
