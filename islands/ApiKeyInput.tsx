@@ -33,7 +33,7 @@ export default function ApiKeyInput() {
 				class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
 			/>
 			<p class="text-sm">
-				This will only be used for extracting data from the images you upload. We don't keep a copy or use it for anything else. If you like, you can restrict the key to only grant access to "Model capabilities".
+				This will only be used for extracting data from the images you upload. We don't keep a copy or use it for anything else.
 			</p>
 		</div>
 	);
