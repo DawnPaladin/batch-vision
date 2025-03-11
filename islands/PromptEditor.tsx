@@ -1,6 +1,6 @@
 import { Signal } from "@preact/signals";
 import { useState } from "preact/hooks";
-import { SchemaProperty, JsonSchema } from "../types/schema.ts";
+import { JsonSchema } from "../types/schema.ts";
 
 interface PromptEditorProps {
 	prompt: Signal<string>;
@@ -22,169 +22,110 @@ export default function PromptEditor({ prompt, schema }: PromptEditorProps) {
 		);
 	}
 
-	// Convert schema to array of properties for editing
-	const [properties, setProperties] = useState<SchemaProperty[]>(() => {
-		const currentSchema = schema.value;
-		return Object.entries(currentSchema.properties).map(([name, prop]) => ({
-			name,
-			type: prop.type,
-			description: prop.description,
-			required: currentSchema.required.includes(name),
-		}));
-	});
+	const [imagesOf, setImagesOf] = useState("");
+	const [schemaDescription, setSchemaDescription] = useState("");
+	const [isGenerating, setIsGenerating] = useState(false);
+	const [error, setError] = useState("");
 
-	// Types available for properties
-	const availableTypes = ["string", "number", "boolean"];
+	// Generate schema and prompt from natural language description
+	const generateSchema = async () => {
+		if (!imagesOf.trim() || !schemaDescription.trim()) {
+			setError("Please fill in both fields");
+			return;
+		}
 
-	// Add a new property
-	const addProperty = () => {
-		setProperties([
-			...properties,
-			{ name: "", type: "string", description: "", required: false },
-		]);
-	};
+		setIsGenerating(true);
+		setError("");
 
-	// Remove a property
-	const removeProperty = (index: number) => {
-		const newProperties = [...properties];
-		newProperties.splice(index, 1);
-		setProperties(newProperties);
-	};
+		try {
+			const response = await fetch("/api/generate-schema", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					imagesOf: imagesOf.trim(),
+					schemaDescription: schemaDescription.trim(),
+				}),
+			});
 
-	// Update a property
-	const updateProperty = (index: number, field: keyof SchemaProperty, value: string | boolean) => {
-		const newProperties = [...properties];
-		newProperties[index] = { ...newProperties[index], [field]: value };
-		setProperties(newProperties);
-	};
-
-	// Save changes to the schema
-	const saveSchema = () => {
-		const newSchema: JsonSchema = {
-			type: "object",
-			properties: {},
-			required: [],
-			additionalProperties: false,
-		};
-
-		properties.forEach((prop) => {
-			if (prop.name) {
-				newSchema.properties[prop.name] = {
-					type: prop.type,
-					description: prop.description,
-				};
-				
-				if (prop.required) {
-					newSchema.required.push(prop.name);
-				}
+			if (!response.ok) {
+				const errorData = await response.json();
+				throw new Error(errorData.error || "Failed to generate schema");
 			}
-		});
 
-		schema.value = newSchema;
+			const data = await response.json();
+			
+			// Update the schema and prompt with generated values
+			schema.value = data.schema;
+			prompt.value = data.promptText;
+		} catch (error: unknown) {
+			console.error("Error generating schema:", error);
+			setError(error instanceof Error ? error.message : "An error occurred while generating the schema");
+		} finally {
+			setIsGenerating(false);
+		}
 	};
 
 	return (
 		<div>
-			<div>
-				<label htmlFor="imagesOf">What are you uploading images of?</label>
-				<input type="text" id="imagesOf" class="border border-blue-500 rounded m-2" />
-			</div>
-			<div>
-				<label htmlFor="schemaDescription">What information do you need out of each image?</label>
-				<textarea type="text" id="schemaDescription" class="block border border-blue-500 rounded my-2 max-w-screen-lg w-full h-24" />
-			</div>
-			<button class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">Generate prompt</button>
-
-			<div class="flex justify-between items-center mb-2">
-				<h2 class="text-lg font-semibold">Schema</h2>
-				<button 
-					onClick={saveSchema}
-					class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-				>
-					Save Schema
-				</button>
-			</div>
-
-			<div class="overflow-x-auto">
-				<table class="min-w-full bg-white border rounded-lg">
-					<thead>
-						<tr class="bg-gray-100">
-							<th class="py-2 px-4 border-b text-left">Property Name</th>
-							<th class="py-2 px-4 border-b text-left">Type</th>
-							<th class="py-2 px-4 border-b text-left">Description</th>
-							<th class="py-2 px-4 border-b text-center">Required</th>
-							<th class="py-2 px-4 border-b text-center">Actions</th>
-						</tr>
-					</thead>
-					<tbody>
-						{properties.map((property, index) => (
-							<tr key={index} class="border-b hover:bg-gray-50">
-								<td class="py-2 px-4">
-									<input
-										type="text"
-										class="w-full p-1 border rounded"
-										value={property.name}
-										onChange={(e) => updateProperty(index, "name", e.currentTarget.value)}
-									/>
-								</td>
-								<td class="py-2 px-4">
-									<select
-										class="w-full p-1 border rounded"
-										value={property.type}
-										onChange={(e) => updateProperty(index, "type", e.currentTarget.value)}
-									>
-										{availableTypes.map(type => (
-											<option key={type} value={type}>{type}</option>
-										))}
-									</select>
-								</td>
-								<td class="py-2 px-4">
-									<input
-										type="text"
-										class="w-full p-1 border rounded"
-										value={property.description}
-										onChange={(e) => updateProperty(index, "description", e.currentTarget.value)}
-									/>
-								</td>
-								<td class="py-2 px-4 text-center">
-									<input
-										type="checkbox"
-										checked={property.required}
-										onChange={(e) => updateProperty(index, "required", e.currentTarget.checked)}
-									/>
-								</td>
-								<td class="py-2 px-4 text-center">
-									<button
-										onClick={() => removeProperty(index)}
-										class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600"
-									>
-										Remove
-									</button>
-								</td>
-							</tr>
-						))}
-						<tr>
-							<td>
-								<button
-									onClick={addProperty}
-									class="m-2 px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
-								>
-									Add Property
-								</button>
-							</td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-			<div class="my-2">
-				<h2 class="text-lg font-semibold mb-2">Prompt</h2>
-				<textarea
-					class="w-full p-2 border rounded-lg mb-4 min-h-[100px]"
-					value={prompt.value}
-					onChange={(e) => prompt.value = e.currentTarget.value}
+			<div class="mb-6">
+				<label htmlFor="imagesOf" class="block text-sm font-medium mb-1">What are you uploading images of?</label>
+				<input 
+					type="text" 
+					id="imagesOf" 
+					class="border border-blue-500 rounded px-3 py-2 w-full" 
+					value={imagesOf}
+					onChange={(e) => setImagesOf(e.currentTarget.value)}
+					placeholder="e.g., receipts, product labels, business cards"
 				/>
 			</div>
+			<div class="mb-6">
+				<label htmlFor="schemaDescription" class="block text-sm font-medium mb-1">What information do you need out of each image?</label>
+				<textarea 
+					id="schemaDescription" 
+					class="block border border-blue-500 rounded px-3 py-2 w-full h-32" 
+					value={schemaDescription}
+					onChange={(e) => setSchemaDescription(e.currentTarget.value)}
+					placeholder="e.g., store name, date of purchase, total amount, list of items with their prices"
+				/>
+			</div>
+			
+			{error && (
+				<div class="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 rounded">
+					{error}
+				</div>
+			)}
+			
+			<button 
+				onClick={generateSchema}
+				disabled={isGenerating}
+				class={`px-4 py-2 rounded font-medium ${
+					isGenerating 
+					? "bg-gray-400 cursor-not-allowed" 
+					: "bg-blue-500 text-white hover:bg-blue-600"
+				}`}
+			>
+				{isGenerating ? "Generating..." : "Generate prompt"}
+			</button>
 
+			{schema.value && Object.keys(schema.value.properties).length > 0 && (
+				<div class="mt-8">
+					<h2 class="text-lg font-semibold mb-2">Generated Schema</h2>
+					<div class="bg-gray-100 p-4 rounded-lg mb-6 overflow-x-auto">
+						<pre class="whitespace-pre-wrap">
+							{JSON.stringify(schema.value, null, 2)}
+						</pre>
+					</div>
+					
+					<h2 class="text-lg font-semibold mb-2">Generated Prompt</h2>
+					<textarea
+						class="w-full p-3 border rounded-lg mb-4 min-h-[120px]"
+						value={prompt.value}
+						onChange={(e) => prompt.value = e.currentTarget.value}
+					/>
+				</div>
+			)}
 		</div>
 	);
 } 
