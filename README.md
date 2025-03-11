@@ -1,16 +1,5 @@
-# Fresh project
+# Batch Vision
 
-Your new Fresh project is ready to go. You can follow the Fresh "Getting
-Started" guide here: https://fresh.deno.dev/docs/getting-started
+This is a tool for taking a bunch of images and getting specific pieces of data out of each one. I used it to take hundreds of receipts and get the date and total from each. LLMs are quite good at reading handwriting and figuring out which number in the image is the one you want.
 
-### Usage
-
-Make sure to install Deno: https://deno.land/manual/getting_started/installation
-
-Then start the project:
-
-```
-deno task start
-```
-
-This will watch the project directory and restart as necessary.
+This is built using [Deno Fresh](https://fresh.deno.dev/). [Install Deno](https://docs.deno.com/runtime/getting_started/installation/), then run `deno task start`.
