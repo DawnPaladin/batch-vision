@@ -102,9 +102,8 @@ export default function PromptEditor({ prompt, schema }: PromptEditorProps) {
 				<div class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
 					<div class="flex items-center">
 						<img src="alert-triangle.svg" alt="Warning" class="m-3" />
-						<span class="text-red-700 font-medium">Error</span>
+						<p class="text-red-600">{error}</p>
 					</div>
-					<p class="text-red-600 mt-1">{error}</p>
 				</div>
 			)}
 			

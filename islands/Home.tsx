@@ -123,7 +123,6 @@ export default function Home() {
 					<img src="alert-triangle.svg" alt="Warning" class="m-3" />
 					LLMs don't always get it right. I was able to get my error rate down to 3% by running my data twice and checking differences between the runs, but your results may vary. Exercise an amount of caution appropriate to the seriousness of any mistakes.
 				</div>
-				
 			</div>
 			<Accordion 
 				sections={accordionSections}
